@@ -19,21 +19,13 @@ namespace ConsoleApp
 
             var position = SearchForChar(textToFound, chars.ToArray());
 
-            //for (int i = position; i < position + textToFound.Length; i++)
-            //{
-            //    Console.Write(chars[i]);
-            //}
-
-            //Console.WriteLine($"Position: {points[position].X},{points[position].Y}  ->  " +
-            //    $"{points[position + textToFound.Length - 1].X},{points[position + textToFound.Length - 1].Y}");
+            if(position == -1) return new Point("-1,-1");
 
             var X = (points[position].X + points[position + textToFound.Length - 1].X) / 2;
             var Y = points[position].Y;
 
             return new Point($"{X}{Constants.PointSeparator}{Y}");
         }
-
-        
 
         public static (List<char> chars, List<Point> points) getAllPoints(string texts)
         {
@@ -54,9 +46,9 @@ namespace ConsoleApp
             return (chars, points);
         }
 
-        public static string ExtractText(string src, int pageNumber)
+        public static string ExtractText(string pdfFilename, int pageNumber)
         {
-            PdfReader reader = new PdfReader(src);
+            PdfReader reader = new PdfReader(pdfFilename);
             MyTextRenderListener listener = new MyTextRenderListener();
             PdfContentStreamProcessor processor = new PdfContentStreamProcessor(listener);
             PdfDictionary pageDic = reader.GetPageN(pageNumber);

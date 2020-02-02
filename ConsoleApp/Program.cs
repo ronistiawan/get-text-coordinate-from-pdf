@@ -6,12 +6,11 @@ namespace ConsoleApp
     {
         public static void Main(string[] args)
         {
-            var point = PdfTools.GetTextCoordinate("Lombok", @"E:\random.pdf", 1);
+            var pdfFilename = @"E:\random.pdf";
+
+            var point = PdfTools.GetTextCoordinate("Lombok", pdfFilename , 1);
 
             Console.WriteLine($"{point.X},{point.Y}");
-
-            Console.Read();
         }
-       
     }
 }
