@@ -10,21 +10,37 @@ namespace ConsoleApp
 {
     public class PdfTools
     {
-        public static Point GetTextCoordinate(string textToFind, string pdfFilename, int pageNumber)
+        public static Point GetCharCoordinate(string textToFind, string pdfFilename, int pageNumber)
         {
             var textToFound = textToFind.ToCharArray();
             var texts = ExtractText(pdfFilename, pageNumber);
 
             (var chars, var points) = getAllPoints(texts);
 
-            var position = SearchForChar(textToFound, chars.ToArray());
+            var position = TextTools.SearchForChar(textToFound, chars.ToArray());
 
             if(position == -1) return new Point("-1,-1");
 
             var X = (points[position].X + points[position + textToFound.Length - 1].X) / 2;
             var Y = points[position].Y;
 
-            return new Point($"{X}{Constants.PointSeparator}{Y}");
+            return new Point(X,Y);
+        }
+
+        public static Point GetTextCoordinate(string textToFind, string pdfFilename, int pageNumber)
+        {
+            var texts = ExtractText(pdfFilename, pageNumber);
+
+            (var chars, var points) = getAllTextLocations(texts);
+
+            (var firstIndex, var lastIndex) = TextTools.SearchForStringInStringArray(textToFind, chars.ToArray());
+
+            if (firstIndex == -1) return new Point("-1,-1");
+
+            var X = (points[firstIndex].X + points[lastIndex].X) / 2;
+            var Y = points[firstIndex].Y;
+
+            return new Point(X,Y);
         }
 
         public static (List<char> chars, List<Point> points) getAllPoints(string texts)
@@ -43,6 +59,24 @@ namespace ConsoleApp
                 }
             }
 
+            return (chars, points);
+        }
+
+        public static (List<string> chars, List<Point> points) getAllTextLocations(string texts)
+        {
+            string[] textList = texts.Split(Constants.MainSeparator);
+            var chars = new List<string>();
+            var points = new List<Point>();
+
+            foreach (var text in textList)
+            {
+                if (text != "")
+                {
+                    var pointChar = text.Split(Constants.CharSeparator);
+                    chars.Add(pointChar[0]);
+                    points.Add(new Point(pointChar[1]));
+                }
+            }
             return (chars, points);
         }
 
@@ -89,29 +123,5 @@ namespace ConsoleApp
             }
         }
 
-        public static int SearchForChar(char[] substring, char[] fulltext)
-        {
-            //all of the start points
-            var indices = fulltext.Select((b, i) => b == substring.FirstOrDefault() ? i : -1)
-                                  .Where(i => i != -1).ToArray();
-
-            //search each start point
-            foreach (var index in indices)
-            {
-                var found = true;
-                int count = 0;
-                for (int i = index; i < index + substring.Length; i++)
-                {
-                    found = true;
-                    if (substring[count++] != fulltext[i])
-                    {
-                        found = false;
-                        break;
-                    }
-                }
-                if (found) return index;
-            }
-            return -1;
-        }
     }   
 }
